@@ -4,11 +4,13 @@ import java.awt.event.KeyListener;
 /**
  * Created by Admin on 28.06.2019.
  */
-public class PacmanEngine implements KeyListener, PacmanConstants{
+public class PacmanEngine implements KeyListener, PacmanConstants, Runnable{
     private PacmanVisual map;
+    private char lastKey;
 
     public PacmanEngine(PacmanVisual map) {
          this.map = map;
+        (new Thread(this)).start();
     }
 
 
@@ -39,20 +41,37 @@ public class PacmanEngine implements KeyListener, PacmanConstants{
     }
 
     @Override
+    public void run() {
+        while (true){
+            try{
+                if(lastKey == 'w') moveUp();
+                if(lastKey == 's') moveDown();
+                if(lastKey == 'a') moveLeft();
+                if(lastKey == 'd') moveRight();
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
     public void keyPressed(KeyEvent e) {
         char key = e.getKeyChar();
 
+
+
         if(key == 'w' || key == 'W') {
-            moveUp();
+            lastKey = 'w';
         }
         if(key == 's' || key == 'S') {
-            moveDown();
+            lastKey = 's';
         }
         if(key == 'a' || key == 'A') {
-            moveLeft();
+            lastKey = 'a';
         }
         if(key == 'd' || key == 'D') {
-            moveRight();
+            lastKey = 'd';
         }
 
     }

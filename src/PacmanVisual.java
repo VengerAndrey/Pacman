@@ -92,6 +92,7 @@ public class PacmanVisual extends JPanel implements PacmanConstants{
 
 
     public static void main(String[] args) {
+
         JFrame frame = new JFrame("Pacman");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         PacmanVisual pacmanVisual = new PacmanVisual();
