@@ -5,10 +5,10 @@ import java.awt.event.KeyListener;
  * Created by Admin on 28.06.2019.
  */
 public class PacmanEngine implements KeyListener, PacmanConstants, Runnable{
-    private PacmanVisual map;
+    private MapFilling map;
     private char lastKey;
 
-    public PacmanEngine(PacmanVisual map) {
+    public PacmanEngine(MapFilling map) {
          this.map = map;
         (new Thread(this)).start();
     }
@@ -61,16 +61,16 @@ public class PacmanEngine implements KeyListener, PacmanConstants, Runnable{
 
 
 
-        if(key == 'w' || key == 'W') {
+        if((key == 'w' || key == 'W') && (map.map[map.pacY/PAC_INCREMENT - 1][map.pacX/PAC_INCREMENT] != 1)) {
             lastKey = 'w';
         }
-        if(key == 's' || key == 'S') {
+        if((key == 's' || key == 'S') && (map.map[map.pacY/PAC_INCREMENT + 1][map.pacX/PAC_INCREMENT] != 1)) {
             lastKey = 's';
         }
-        if(key == 'a' || key == 'A') {
+        if((key == 'a' || key == 'A') && (map.map[map.pacY/PAC_INCREMENT][map.pacX/PAC_INCREMENT - 1] != 1)) {
             lastKey = 'a';
         }
-        if(key == 'd' || key == 'D') {
+        if((key == 'd' || key == 'D') && (map.map[map.pacY/PAC_INCREMENT][map.pacX/PAC_INCREMENT + 1] != 1)) {
             lastKey = 'd';
         }
 
