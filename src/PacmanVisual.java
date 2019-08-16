@@ -2,31 +2,62 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by Admin on 28.06.2019.
  */
-public class PacmanVisual implements PacmanConstants {
-//    public int pacX = X_PAC_START;
-//    public int pacY = Y_PAC_START;
-//    int[][] map = new int[X_MAP][Y_MAP];
+
+public class PacmanVisual implements PacmanConstants, Runnable {
 
     JFrame frame = new JFrame("Pacman");
-    JPanel mainPanel = new JPanel();
+    static JPanel mainPanel = new JPanel();
     JPanel menuPanel = new JPanel();
     JButton startButton = new JButton("Start a new game");
     JButton exitButton = new JButton("Exit");
-    CardLayout cl = new CardLayout();
+    JButton mapEditorButton = new JButton("Map Editor");
+    JButton gameFinishButton = new JButton("Finish the game");
+    static JLabel timeLabel = new JLabel();
+    static JLabel scoreLabel = new JLabel();
+    JLabel emptyLabel1 = new JLabel("     ");
+    JLabel emptyLabel2 = new JLabel("     ");
+    static CardLayout cl = new CardLayout();
     GridBagLayout gbl = new GridBagLayout();
     GridBagConstraints c = new GridBagConstraints();
-    static JTextField scoreText;
-    static int score = 0;
+
+    Box box = Box.createHorizontalBox();
+
+    static int score = -1;
+
+    Timer timer = new Timer();
+    private int time;
+    private long startTime;
 
     PacmanVisual() {
         MapFilling mapFilling = new MapFilling();
         mapFilling.setLayout(new BorderLayout());
 
-        mapFilling.add(scoreText = new JTextField(), "South");
+        MapEditor mapEditor = new MapEditor();
+
+        time = MapEditor.coins;
+
+        box.add(scoreLabel);
+        box.add(emptyLabel1);
+        box.add(timeLabel);
+        box.add(emptyLabel2);
+        box.add(gameFinishButton);
+        mapFilling.add(box, "South");
+
+        gameFinishButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                cl.show(mainPanel, "1");
+                //MapFilling.isGame = false;
+                mapFilling.repaint();
+            }
+        });
+
         mapFilling.repaint();
 
         mainPanel.setLayout(cl);
@@ -38,7 +69,7 @@ public class PacmanVisual implements PacmanConstants {
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.gridx = GridBagConstraints.RELATIVE;
         c.gridy = GridBagConstraints.RELATIVE;
-        c.insets = new Insets(20, 5, 0, 0);
+        c.insets = new Insets(20, 0, 0, 0);
         c.ipadx = 0;
         c.ipady = 0;
         c.weightx = 0.0;
@@ -49,13 +80,15 @@ public class PacmanVisual implements PacmanConstants {
 
         c.fill = GridBagConstraints.VERTICAL;
         c.insets = new Insets(10, 0, 0, 0);
+        gbl.setConstraints(mapEditorButton, c);
+        menuPanel.add(mapEditorButton);
+
         gbl.setConstraints(exitButton, c);
         menuPanel.add(exitButton);
-        //menuPanel.add(buttonBox, BorderLayout.CENTER);
-        //menuPanel.setLayout(new SpringLayout());
 
         mainPanel.add(menuPanel, "1");
         mainPanel.add(mapFilling, "2");
+        mainPanel.add(mapEditor.editorPanel, "3");
 
         cl.show(mainPanel, "1");
 
@@ -63,6 +96,8 @@ public class PacmanVisual implements PacmanConstants {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 cl.show(mainPanel, "2");
+                newGame();
+                mapFilling.repaint();
             }
         });
 
@@ -72,17 +107,39 @@ public class PacmanVisual implements PacmanConstants {
                 System.exit(0);
             }
         });
+
+        mapEditorButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                cl.show(mainPanel, "3");
+            }
+        });
+
         frame.setContentPane(mainPanel);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(616, 659);
+        frame.setSize(616, 679);
         frame.setResizable(false);
         frame.setVisible(true);
 
 
     }
 
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                if ((time * 1000 - (System.currentTimeMillis() - startTime) > 0)) {
+                    PacmanVisual.timeLabel.setText("Time left: " + Long.toString((time * 1000 - (System.currentTimeMillis() - startTime)) / 1000));
+                    Thread.sleep(1000);
+                } else PacmanVisual.timeLabel.setText("Time is over!");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void setScore() {
-        scoreText.setText(Integer.toString(score));
+        scoreLabel.setText("Score: " + Integer.toString(score));
     }
 //    void mapFilling (int rows, int columns) {
 //        for (int i = 0; i < rows; i++) {
@@ -129,7 +186,28 @@ public class PacmanVisual implements PacmanConstants {
 //        container.add(this);
 //
 //    }
+    void newGame() {
+        MapFilling.pacX = X_PAC_START;
+        MapFilling.pacY = Y_PAC_START;
 
+        MapFilling.isGame = true;
+
+        PacmanEngine.lastKey = -1;
+
+        score = 0;
+        setScore();
+
+        startTime = System.currentTimeMillis();
+        (new Thread(PacmanVisual.this::run)).start();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (PacmanVisual.score == MapEditor.coins - 750) {
+                    timer.cancel();
+                }
+            }
+        }, time * 1000);
+    }
 
     public static void main(String[] args) {
         PacmanVisual pacmanVisual = new PacmanVisual();

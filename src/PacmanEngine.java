@@ -1,12 +1,15 @@
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by Admin on 28.06.2019.
  */
 public class PacmanEngine implements KeyListener, PacmanConstants, Runnable {
     private MapFilling map;
-    private char lastKey;
+    static int lastKey;
+
 
     public PacmanEngine(MapFilling map) {
         this.map = map;
@@ -17,6 +20,7 @@ public class PacmanEngine implements KeyListener, PacmanConstants, Runnable {
     void moveUp() {
         if (map.map[map.pacY / PAC_INCREMENT - 1][map.pacX / PAC_INCREMENT] != 1) {
             map.pacY -= PAC_INCREMENT;
+            MapFilling.imgIndex = 6;
             map.repaint();
         }
     }
@@ -24,6 +28,7 @@ public class PacmanEngine implements KeyListener, PacmanConstants, Runnable {
     void moveDown() {
         if (map.map[map.pacY / PAC_INCREMENT + 1][map.pacX / PAC_INCREMENT] != 1) {
             map.pacY += PAC_INCREMENT;
+            MapFilling.imgIndex = 4;
             map.repaint();
         }
     }
@@ -31,6 +36,7 @@ public class PacmanEngine implements KeyListener, PacmanConstants, Runnable {
     void moveRight() {
         if (map.map[map.pacY / PAC_INCREMENT][map.pacX / PAC_INCREMENT + 1] != 1) {
             map.pacX += PAC_INCREMENT;
+            MapFilling.imgIndex = 0;
             map.repaint();
         }
     }
@@ -38,6 +44,7 @@ public class PacmanEngine implements KeyListener, PacmanConstants, Runnable {
     void moveLeft() {
         if (map.map[map.pacY / PAC_INCREMENT][map.pacX / PAC_INCREMENT - 1] != 1) {
             map.pacX -= PAC_INCREMENT;
+            MapFilling.imgIndex = 2;
             map.repaint();
         }
     }
@@ -46,11 +53,37 @@ public class PacmanEngine implements KeyListener, PacmanConstants, Runnable {
     public void run() {
         while (true) {
             try {
-                if (lastKey == 'w') moveUp();
-                if (lastKey == 's') moveDown();
-                if (lastKey == 'a') moveLeft();
-                if (lastKey == 'd') moveRight();
-                Thread.sleep(200);
+                if (lastKey == KeyEvent.VK_W) moveUp();
+                if (lastKey == KeyEvent.VK_S) moveDown();
+                if (lastKey == KeyEvent.VK_A) moveLeft();
+                if (lastKey == KeyEvent.VK_D) moveRight();
+
+                Thread.sleep(100);
+
+                if (MapFilling.imgIndex == 0) {
+                    MapFilling.imgIndex = 1;
+                    map.repaint();
+                    Thread.sleep(100);
+                    continue;
+                }
+                if (MapFilling.imgIndex == 2) {
+                    MapFilling.imgIndex = 3;
+                    map.repaint();
+                    Thread.sleep(100);
+                    continue;
+                }
+                if (MapFilling.imgIndex == 4) {
+                    MapFilling.imgIndex = 5;
+                    map.repaint();
+                    Thread.sleep(100);
+                    continue;
+                }
+                if (MapFilling.imgIndex == 6) {
+                    MapFilling.imgIndex = 7;
+                    map.repaint();
+                    Thread.sleep(100);
+                    continue;
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -59,20 +92,20 @@ public class PacmanEngine implements KeyListener, PacmanConstants, Runnable {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        char key = e.getKeyChar();
+        int key = e.getKeyCode();
 
 
-        if ((key == 'w' || key == 'W') && (map.map[map.pacY / PAC_INCREMENT - 1][map.pacX / PAC_INCREMENT] != 1)) {
-            lastKey = 'w';
+        if ((key == KeyEvent.VK_W) && (map.map[map.pacY / PAC_INCREMENT - 1][map.pacX / PAC_INCREMENT] != 1)) {
+            lastKey = KeyEvent.VK_W;
         }
-        if ((key == 's' || key == 'S') && (map.map[map.pacY / PAC_INCREMENT + 1][map.pacX / PAC_INCREMENT] != 1)) {
-            lastKey = 's';
+        if ((key == KeyEvent.VK_S) && (map.map[map.pacY / PAC_INCREMENT + 1][map.pacX / PAC_INCREMENT] != 1)) {
+            lastKey = KeyEvent.VK_S;
         }
-        if ((key == 'a' || key == 'A') && (map.map[map.pacY / PAC_INCREMENT][map.pacX / PAC_INCREMENT - 1] != 1)) {
-            lastKey = 'a';
+        if ((key == KeyEvent.VK_A) && (map.map[map.pacY / PAC_INCREMENT][map.pacX / PAC_INCREMENT - 1] != 1)) {
+            lastKey = KeyEvent.VK_A;
         }
-        if ((key == 'd' || key == 'D') && (map.map[map.pacY / PAC_INCREMENT][map.pacX / PAC_INCREMENT + 1] != 1)) {
-            lastKey = 'd';
+        if ((key == KeyEvent.VK_D) && (map.map[map.pacY / PAC_INCREMENT][map.pacX / PAC_INCREMENT + 1] != 1)) {
+            lastKey = KeyEvent.VK_D;
         }
 
     }
